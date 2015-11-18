@@ -11,11 +11,18 @@ go get github.com/pocke/js-file2string
 Usage
 ------
 
+In command line
 
 ```sh
-$ js-file2string < file.txt > out.js
+$ js-file2string file1 file2 > files.js
 ```
 
+In JavaScript
+
+```javascript
+var files = require('files');
+var file1Value = files['file1'];
+```
 
 License
 -------

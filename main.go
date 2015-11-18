@@ -2,22 +2,28 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 )
 
 func main() {
-	if err := Translate(os.Stdin, os.Stdout); err != nil {
-		panic(err)
+	for _, fname := range os.Args[1:] {
+		if err := Translate(fname, os.Stdout); err != nil {
+			panic(err)
+		}
 	}
 }
 
-func Translate(r io.Reader, w io.Writer) error {
-	_, err := w.Write([]byte(`exports.default='`))
+func Translate(fname string, w io.Writer) error {
+	r, err := os.Open(fname)
 	if err != nil {
 		return err
 	}
-	defer w.Write([]byte("'\n"))
+
+	// XXX: escape
+	fmt.Fprintf(w, "exports['%s']='", fname)
+	defer w.Write([]byte("';\n"))
 
 	sc := bufio.NewScanner(r)
 	sc.Split(bufio.ScanBytes)
