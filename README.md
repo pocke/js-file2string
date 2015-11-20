@@ -1,6 +1,8 @@
 js-file2string
 ===============
 
+[![Build Status](https://travis-ci.org/pocke/js-file2string.svg)](https://travis-ci.org/pocke/js-file2string)
+
 Installation
 ------------
 
