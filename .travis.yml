@@ -9,6 +9,4 @@ go:
 
 
 script:
-  - 'go test -v'
-  - 'node --version'
-  - 'node test.js'
+  - 'make test'
