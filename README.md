@@ -11,17 +11,37 @@ go get github.com/pocke/js-file2string
 Usage
 ------
 
-In command line
+```
+Usage of js-file2string:
+  -f, --filename-only[=false]: trim directory
+```
+
+### In command line
 
 ```sh
 $ js-file2string file1 file2 > files.js
 ```
 
-In JavaScript
+### In JavaScript
 
 ```javascript
 var files = require('files');
 var file1Value = files['file1'];
+```
+
+### Options
+
+- `-f`, `--filename-only`
+
+
+Development
+-----------
+
+### Test
+
+```sh
+$ go test -v
+$ node tset.js
 ```
 
 License

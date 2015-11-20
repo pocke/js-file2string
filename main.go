@@ -6,20 +6,40 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+
+	"github.com/spf13/pflag"
 )
 
+type Option struct {
+	FileNameOnly bool
+}
+
 func main() {
-	for _, fname := range os.Args[1:] {
-		if err := Translate(fname, os.Stdout); err != nil {
+	opt := &Option{}
+	pflag.BoolVarP(&opt.FileNameOnly, "filename-only", "f", false, "trim directory")
+	pflag.Parse()
+
+	files := pflag.Args()
+	if opt.FileNameOnly && !checkFileUniq(files) {
+		fmt.Fprintln(os.Stderr, "Files should be uniq")
+	}
+
+	for _, fname := range files {
+		if err := Translate(fname, os.Stdout, opt); err != nil {
 			panic(err)
 		}
 	}
 }
 
-func Translate(fname string, w io.Writer) error {
+func Translate(fname string, w io.Writer, opt *Option) error {
 	b, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return err
+	}
+
+	if opt.FileNameOnly {
+		_, fname = filepath.Split(fname)
 	}
 
 	// XXX: escape
@@ -27,4 +47,16 @@ func Translate(fname string, w io.Writer) error {
 	defer w.Write([]byte(";\n"))
 
 	return json.NewEncoder(w).Encode(string(b))
+}
+
+func checkFileUniq(files []string) bool {
+	existTable := make(map[string]struct{})
+	for _, f := range files {
+		_, fname := filepath.Split(f)
+		if _, exist := existTable[fname]; exist {
+			return false
+		}
+		existTable[fname] = struct{}{}
+	}
+	return true
 }
