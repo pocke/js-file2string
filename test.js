@@ -1,12 +1,11 @@
-const execSync = require('child_process').execSync;
-
-execSync('go run main.go README.md > out.js');
+const fs = require('fs');
 const readme = require('./out.js')['README.md'];
-execSync('rm out.js');
 
-const expected = "" + execSync('cat README.md');
-
-
-if (readme !== expected) {
-  console.error("Expected:\n" + expected + ",\nbut got:\n" + readme);
-}
+fs.readFile('./README.md', 'utf8', function(err, text) {
+  if (text !== readme) {
+    console.error('not equal');
+    console.error(text);
+    console.error(readme);
+    process.exit(1);
+  }
+});
