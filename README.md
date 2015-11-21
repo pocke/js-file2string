@@ -13,9 +13,12 @@ go get github.com/pocke/js-file2string
 Usage
 ------
 
-```
+```sh
+$ js-file2string --help
 Usage of js-file2string:
   -f, --filename-only[=false]: trim directory
+  -r, --replace[=false]: replace as javascript identifier
+  -t, --typing[=false]: output .d.ts for TypeScript
 ```
 
 ### In command line
@@ -34,6 +37,8 @@ var file1Value = files['file1'];
 ### Options
 
 - `-f`, `--filename-only`
+- `-r`, `--replace`
+- `-t`, `--typing`
 
 
 Development
