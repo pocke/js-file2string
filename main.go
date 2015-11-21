@@ -44,7 +44,6 @@ func Translate(fname string, w io.Writer, opt *Option) error {
 
 	efname := ExportedFilename(fname, opt)
 
-	// XXX: escape
 	fmt.Fprintf(w, "exports['%s']=", efname)
 	defer w.Write([]byte(";\n"))
 
