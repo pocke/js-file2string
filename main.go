@@ -24,8 +24,9 @@ func main() {
 	pflag.Parse()
 
 	files := pflag.Args()
-	if opt.FileNameOnly && !checkFileUniq(files) {
+	if (opt.FileNameOnly || opt.Replace) && !checkFileUniq(files, opt) {
 		fmt.Fprintln(os.Stderr, "Files should be uniq")
+		os.Exit(1)
 	}
 
 	for _, fname := range files {
@@ -41,21 +42,19 @@ func Translate(fname string, w io.Writer, opt *Option) error {
 		return err
 	}
 
-	if opt.FileNameOnly {
-		_, fname = filepath.Split(fname)
-	}
+	efname := ExportedFilename(fname, opt)
 
 	// XXX: escape
-	fmt.Fprintf(w, "exports['%s']=", fname)
+	fmt.Fprintf(w, "exports['%s']=", efname)
 	defer w.Write([]byte(";\n"))
 
 	return json.NewEncoder(w).Encode(string(b))
 }
 
-func checkFileUniq(files []string) bool {
+func checkFileUniq(files []string, opt *Option) bool {
 	existTable := make(map[string]struct{})
 	for _, f := range files {
-		_, fname := filepath.Split(f)
+		fname := ExportedFilename(f, opt)
 		if _, exist := existTable[fname]; exist {
 			return false
 		}
