@@ -48,7 +48,12 @@ func Translate(fname string, w io.Writer, opt *Option) error {
 	fmt.Fprintf(w, "exports['%s']=", efname)
 	defer w.Write([]byte(";\n"))
 
-	return json.NewEncoder(w).Encode(string(b))
+	bs, err := json.Marshal(string(b))
+	if err != nil {
+		return err
+	}
+	w.Write(bs)
+	return nil
 }
 
 func checkFileUniq(files []string, opt *Option) bool {
