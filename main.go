@@ -14,11 +14,13 @@ import (
 
 type Option struct {
 	FileNameOnly bool
+	Replace      bool
 }
 
 func main() {
 	opt := &Option{}
 	pflag.BoolVarP(&opt.FileNameOnly, "filename-only", "f", false, "trim directory")
+	pflag.BoolVarP(&opt.Replace, "replace", "r", false, "replace as javascript identifier")
 	pflag.Parse()
 
 	files := pflag.Args()
@@ -63,7 +65,7 @@ func checkFileUniq(files []string) bool {
 }
 
 func ReplaceFilename(fname string) string {
-	var res []byte = nil
+	var res []byte
 	if regexp.MustCompile(`\d`).Match([]byte{fname[0]}) {
 		res = make([]byte, 1, len(fname)+1)
 		res[0] = '_'
@@ -80,4 +82,15 @@ func ReplaceFilename(fname string) string {
 		}
 	}
 	return string(res)
+}
+
+func ExportedFilename(fpath string, opt *Option) string {
+	res := fpath
+	if opt.FileNameOnly {
+		_, res = filepath.Split(fpath)
+	}
+	if opt.Replace {
+		res = ReplaceFilename(res)
+	}
+	return res
 }
