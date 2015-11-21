@@ -15,18 +15,25 @@ import (
 type Option struct {
 	FileNameOnly bool
 	Replace      bool
+	Typing       bool
 }
 
 func main() {
 	opt := &Option{}
 	pflag.BoolVarP(&opt.FileNameOnly, "filename-only", "f", false, "trim directory")
 	pflag.BoolVarP(&opt.Replace, "replace", "r", false, "replace as javascript identifier")
+	pflag.BoolVarP(&opt.Typing, "typing", "t", false, "output .d.ts for TypeScript")
 	pflag.Parse()
 
 	files := pflag.Args()
 	if (opt.FileNameOnly || opt.Replace) && !checkFileUniq(files, opt) {
 		fmt.Fprintln(os.Stderr, "Files should be uniq")
 		os.Exit(1)
+	}
+
+	if opt.Typing {
+		Typing(files, opt, os.Stdout)
+		return
 	}
 
 	for _, fname := range files {
@@ -45,13 +52,13 @@ func Translate(fname string, w io.Writer, opt *Option) error {
 	efname := ExportedFilename(fname, opt)
 
 	fmt.Fprintf(w, "exports['%s']=", efname)
-	defer w.Write([]byte(";\n"))
 
 	bs, err := json.Marshal(string(b))
 	if err != nil {
 		return err
 	}
 	w.Write(bs)
+	w.Write([]byte(";\n"))
 	return nil
 }
 
@@ -96,4 +103,18 @@ func ExportedFilename(fpath string, opt *Option) string {
 		res = ReplaceFilename(res)
 	}
 	return res
+}
+
+func Typing(files []string, opt *Option, w io.Writer) {
+	fmt.Fprintln(w, `declare const templates: {`)
+	if opt.Replace {
+		for _, f := range files {
+			fname := ExportedFilename(f, opt)
+			fmt.Fprintf(w, "  %s: string;\n", fname)
+		}
+	} else {
+		fmt.Fprintln(w, `  [x: string]: string;`)
+	}
+	fmt.Fprintln(w, `};
+export = templates;`)
 }
