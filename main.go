@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/spf13/pflag"
 )
@@ -59,4 +60,24 @@ func checkFileUniq(files []string) bool {
 		existTable[fname] = struct{}{}
 	}
 	return true
+}
+
+func ReplaceFilename(fname string) string {
+	var res []byte = nil
+	if regexp.MustCompile(`\d`).Match([]byte{fname[0]}) {
+		res = make([]byte, 1, len(fname)+1)
+		res[0] = '_'
+	} else {
+		res = make([]byte, 0, len(fname))
+	}
+
+	re := regexp.MustCompile(`[[:alnum:]_$]`)
+	for _, ch := range []byte(fname) {
+		if re.Match([]byte{ch}) {
+			res = append(res, ch)
+		} else {
+			res = append(res, '_')
+		}
+	}
+	return string(res)
 }
